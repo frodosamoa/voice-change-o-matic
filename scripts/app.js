@@ -21,8 +21,37 @@ var mute = document.querySelector('.mute');
 //set up the different audio nodes we will use for the app
 
 var analyser = audioCtx.createAnalyser();
+<<<<<<< Updated upstream
 var distortion = audioCtx.createWaveShaper();
 var gainNode = audioCtx.createGain();
+=======
+analyser.minDecibels = -90;
+analyser.maxDecibels = -10;
+analyser.smoothingTimeConstant = 0.85;
+
+var soundSource;
+
+ajaxRequest = new XMLHttpRequest();
+
+ajaxRequest.open('GET', 'https://mdn.github.io/voice-change-o-matic/audio/concert-crowd.ogg', true);
+
+ajaxRequest.responseType = 'arraybuffer';
+
+
+ajaxRequest.onload = function() {
+  var audioData = ajaxRequest.response;
+
+  audioCtx.decodeAudioData(audioData, function(buffer) {
+      soundSource = audioCtx.createBufferSource();
+    }, function(e){ console.log("Error with decoding audio data" + e.err);});
+
+  //soundSource.connect(audioCtx.destination);
+  //soundSource.loop = true;
+  //soundSource.start();
+};
+
+ajaxRequest.send();
+>>>>>>> Stashed changes
 
 // set up canvas context for visualizer
 
@@ -37,6 +66,7 @@ var drawVisual;
 
 if (navigator.getUserMedia) {
    console.log('getUserMedia supported.');
+<<<<<<< Updated upstream
    navigator.getUserMedia (
       // constraints - only audio needed for this app
       {
@@ -61,6 +91,19 @@ if (navigator.getUserMedia) {
          console.log('The following gUM error occured: ' + err);
       }
    );
+=======
+   var constraints = {audio: true}
+   navigator.mediaDevices.getUserMedia (constraints)
+      .then(
+        function(stream) {
+           source = audioCtx.createMediaStreamSource(stream);
+           source.connect(analyser);
+           analyser.connect(audioCtx.destination);
+
+        	 visualize();
+      })
+      .catch( function(err) { console.log('The following gUM error occured: ' + err);})
+>>>>>>> Stashed changes
 } else {
    console.log('getUserMedia not supported on your browser!');
 }
@@ -69,7 +112,12 @@ function visualize(stream) {
   WIDTH = canvas.width;
   HEIGHT = canvas.height;
 
+  analyser.fftSize = 256;
+  var bufferLengthAlt = analyser.frequencyBinCount;
+  console.log(bufferLengthAlt);
+  var dataArrayAlt = new Uint8Array(bufferLengthAlt);
 
+<<<<<<< Updated upstream
   var visualSetting = visualSelect.value;
   console.log(visualSetting);
 
@@ -117,17 +165,29 @@ function visualize(stream) {
       canvasCtx.lineTo(canvas.width, canvas.height/2);
       canvasCtx.stroke();
     };
+=======
+  canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
+>>>>>>> Stashed changes
 
-    draw();
+  var drawAlt = function() {
+    drawVisual = requestAnimationFrame(drawAlt);
 
+<<<<<<< Updated upstream
   } else if(visualSetting == "off") {
     canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
     canvasCtx.fillStyle = "red";
+=======
+    analyser.getByteFrequencyData(dataArrayAlt);
+
+    canvasCtx.fillStyle = 'rgb(0, 0, 0)';
+>>>>>>> Stashed changes
     canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
-  }
 
-}
+    var barWidth = (WIDTH / bufferLengthAlt) * 2.5;
+    var barHeight;
+    var x = 0;
 
+<<<<<<< Updated upstream
 function voiceChange() {
   var voiceSetting = voiceSelect.value;
   console.log(voiceSetting);
@@ -135,9 +195,15 @@ function voiceChange() {
 
   }
 }
+=======
+    for(var i = 0; i < bufferLengthAlt; i++) {
+      barHeight = dataArrayAlt[i];
+>>>>>>> Stashed changes
 
-// event listeners to change visualize and voice settings
+      canvasCtx.fillStyle = 'rgb(' + (barHeight+100) + ',50,50)';
+      canvasCtx.fillRect(x,HEIGHT-barHeight*2,barWidth,barHeight*2);
 
+<<<<<<< Updated upstream
 visualSelect.onchange = function() {
   window.cancelAnimationFrame(drawVisual);
   visualize(stream);
@@ -153,3 +219,12 @@ function voiceMute() {
   gainNode.gain.value = 0;
   console.log(gainNode.gain.value);
 }
+=======
+      x += barWidth + 1;
+    }
+  };
+
+  drawAlt();
+
+}
+>>>>>>> Stashed changes
